@@ -20,7 +20,7 @@ const dataUpload = async () => {
   //   console.log("user already exist")
   // }
 };
-dataUpload();
+// dataUpload();
 
 const loginController = async (req, res) => {
   try {
