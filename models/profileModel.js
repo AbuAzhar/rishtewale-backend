@@ -57,8 +57,8 @@ const profileSchema = new mongoose.Schema({
     trim: true,
   },
   images: {
-    type: [String],
-    required: [true, 'Enter Project Image'],
+    type: String,
+    required: true,
   },
 });
 

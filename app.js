@@ -1,19 +1,24 @@
+import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { dbConnectivity } from "./config/db.js";
 import userRouter from "./routes/adminRoute.js";
 import { ProfileRouter } from "./routes/profileRoute.js";
-
 const app = express();
 
 // Middlewares
-
-// Middleware to serve static files
-app.use("/uploads", express.static("uploads")); // Serve static files from the uploads folder
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
+// app.use(cors({
+//   origin: 'https://rishtewale.com/', // Allow requests from your frontend domain
+// }));
+
+
+
+
 // dotenv config
 dotenv.config({ path: "config/config.env" });
 

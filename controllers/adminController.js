@@ -12,7 +12,7 @@ const dataUpload = async () => {
   });
 
   // Check if the user already exists
-  const existingUser = await User.findOne({ email: "74abuazhar@gmail.com" });
+  const existingUser = await User.findOne({ email: "rishtewalepanel@gmail.com" });
   if (!existingUser) {
     await user.save();
   }

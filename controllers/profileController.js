@@ -1,31 +1,49 @@
+import { v2 as cloudinary } from "cloudinary";
 import { StatusCodes } from "http-status-codes";
 import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 import { Profile } from "../models/profileModel.js";
 
-// SET MULTER CONFIGRATION
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
+// Cloudinary configuration
+cloudinary.config({
+  cloud_name: "dp3hsqngf",
+  api_key: 189886163665759,
+  api_secret: "g55P_hmQthgUXhkEDFLxmKTs1ug",
+  secure: true,
+});
+
+// Cloudinary storage configuration for multer
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "profiles",
+    allowed_formats: ["jpg", "jpeg", "png", "avif", "webp"],
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage: storage });
+// Cloudinary configuration
+cloudinary.config({
+  cloud_name: "dp3hsqngf",
+  api_key: 189886163665759,
+  api_secret: "g55P_hmQthgUXhkEDFLxmKTs1ug",
+  secure: true,
+});
 
-// GET-PROFILES
+// GET Profiles
 const getProfile = async (req, res) => {
   try {
-    const profile = await Profile.find();
-    if (profile.length == 0) {
+    const profiles = await Profile.find();
+
+    if (profiles.length === 0) {
       return res
         .status(StatusCodes.NOT_FOUND)
-        .json({ message: "No profile found" });
+        .json({ message: "No profiles found" });
     }
+
     return res.status(StatusCodes.OK).json({
       success: true,
-      profile,
+      profiles,
     });
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -35,7 +53,8 @@ const getProfile = async (req, res) => {
   }
 };
 
-// POST-PROFILES
+// POST Profile
+// POST Profile
 const createProfile = async (req, res) => {
   try {
     const {
@@ -49,6 +68,8 @@ const createProfile = async (req, res) => {
       district,
       state,
     } = req.body;
+
+    // Check if required fields are present
     if (
       !name ||
       !age ||
@@ -60,35 +81,41 @@ const createProfile = async (req, res) => {
       !district ||
       !state
     ) {
-      return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
         message: "Please fill all the fields",
       });
     }
-    // console.log(req.files)
 
-    // const images = req.files.map((file) => file.path);
-    const images = req.files.map((file) => `/${file.path.replace(/\\/g, "/")}`);
+    // Check if an image was uploaded
+    if (req.file) {
+      // Extract Cloudinary URL from the uploaded file
+      const images = req.file.path;
+      // Create the profile
+      const profile = await Profile.create({
+        name,
+        age,
+        gender,
+        qualification,
+        occupation,
+        maritalStatus,
+        caste,
+        district,
+        state,
+        images // Save the Cloudinary URL here
+      });
 
-    // console.log(images)
-
-    const profile = await Profile.create({
-      name,
-      age,
-      gender,
-      qualification,
-      occupation,
-      maritalStatus,
-      caste,
-      district,
-      state,
-      images,
-    });
-    return res.status(StatusCodes.CREATED).json({
-      success: true,
-      message: "Profile created successfully",
-      profile,
-    });
+      return res.status(StatusCodes.CREATED).json({
+        success: true,
+        message: "Profile created successfully",
+        profile,
+      });
+    } else {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "No image uploaded",
+      });
+    }
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
@@ -97,17 +124,19 @@ const createProfile = async (req, res) => {
   }
 };
 
-// DELETE PROFILE
+// DELETE Profile
 const deleteProfile = async (req, res) => {
   try {
     const { id } = req.params;
     const profile = await Profile.findByIdAndDelete(id);
+
     if (!profile) {
       return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
         message: "Profile not found",
       });
     }
+
     return res.status(StatusCodes.OK).json({
       success: true,
       message: "Profile deleted successfully",
@@ -120,27 +149,32 @@ const deleteProfile = async (req, res) => {
   }
 };
 
+// SEARCH Profiles
 const searchProfile = async (req, res) => {
   const { gender, maritalStatus, age, caste, state } = req.query;
-
-  // Build the query object based on available criteria
   const query = {};
 
   if (gender) query.gender = gender;
   if (maritalStatus) query.maritalStatus = maritalStatus;
-  if (age) query.age = { $gte: age.split('-')[0], $lte: age.split('-')[1] };
+  if (age) query.age = { $gte: age.split("-")[0], $lte: age.split("-")[1] };
   if (caste) query.caste = caste;
   if (state) query.state = state;
 
   try {
-      const profiles = await Profile.find(query);
-      if (profiles.length > 0) {
-          res.json({ success: true, profiles });
-      } else {
-          res.json({ success: false, message: 'No profiles found' });
-      }
+    const profiles = await Profile.find(query);
+    if (profiles.length > 0) {
+      res.status(StatusCodes.OK).json({ success: true, profiles });
+    } else {
+      res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ success: false, message: "No profiles found" });
+    }
   } catch (error) {
-      res.status(500).json({ success: false, message: 'Server error', error });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Server error",
+      error,
+    });
   }
 };
 

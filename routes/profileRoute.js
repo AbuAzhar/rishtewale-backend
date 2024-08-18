@@ -1,10 +1,10 @@
-import express from "express";
+import { Router } from "express";
 import { createProfile, deleteProfile, getProfile, searchProfile, upload } from "../controllers/profileController.js";
 
-const ProfileRouter = express.Router();
+const ProfileRouter = Router();
 
 ProfileRouter.get("/all-profiles", getProfile);
-ProfileRouter.post("/create-profile",upload.array("images",1),createProfile)
+ProfileRouter.post("/create-profile",upload.single("images"), createProfile);
 ProfileRouter.delete("/delete-profile/:id", deleteProfile);
 ProfileRouter.get("/search-profile", searchProfile);
 
