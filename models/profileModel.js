@@ -11,7 +11,6 @@ const profileSchema = new mongoose.Schema({
   age: {
     type: Number,
     required: [true, "Enter Age *"],
-    trim: true,
   },
   gender: {
     type: String,
@@ -29,7 +28,7 @@ const profileSchema = new mongoose.Schema({
   },
   occupation: {
     type: String,
-    required: [true, "Enter Work *"],
+    required: [true, "Enter Occupation *"],
     trim: true,
   },
   maritalStatus: {
@@ -58,7 +57,7 @@ const profileSchema = new mongoose.Schema({
   },
   images: {
     type: String,
-    required: true,
+    required: [true, "Image is required"],
   },
 });
 

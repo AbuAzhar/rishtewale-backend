@@ -1,8 +1,9 @@
-import { v2 as cloudinary } from "cloudinary";
+import cloudinary from 'cloudinary';
 import { StatusCodes } from "http-status-codes";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import { Profile } from "../models/profileModel.js";
+const { v2: cloudinaryV2 } = cloudinary;
 
 // Cloudinary configuration
 cloudinary.config({
@@ -30,6 +31,58 @@ cloudinary.config({
   secure: true,
 });
 
+
+
+// POST Profile
+const createProfile = async (req, res) => {
+  try {
+    const { name, age, gender, qualification, occupation, maritalStatus, caste, district, state } = req.body;
+
+    if (
+      !name || !age || !gender || !qualification || !occupation || !maritalStatus || !caste || !district || !state
+    ) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "Please fill all the fields",
+      });
+    }
+
+    console.log(req.file)
+    if (req.file) {
+      const imageUrl = req.file.path; // Cloudinary URL
+
+      const profile = await Profile.create({
+        name,
+        age,
+        gender,
+        qualification,
+        occupation,
+        maritalStatus,
+        caste,
+        district,
+        state,
+        images: imageUrl
+      });
+
+      return res.status(StatusCodes.CREATED).json({
+        success: true,
+        message: "Profile created successfully",
+        profile,
+      });
+    } else {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "Image file is required",
+      });
+    }
+  } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 // GET Profiles
 const getProfile = async (req, res) => {
   try {
@@ -45,77 +98,6 @@ const getProfile = async (req, res) => {
       success: true,
       profiles,
     });
-  } catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-// POST Profile
-// POST Profile
-const createProfile = async (req, res) => {
-  try {
-    const {
-      name,
-      age,
-      gender,
-      qualification,
-      occupation,
-      maritalStatus,
-      caste,
-      district,
-      state,
-    } = req.body;
-
-    // Check if required fields are present
-    if (
-      !name ||
-      !age ||
-      !gender ||
-      !qualification ||
-      !occupation ||
-      !maritalStatus ||
-      !caste ||
-      !district ||
-      !state
-    ) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: "Please fill all the fields",
-      });
-    }
-
-    // Check if an image was uploaded
-    if (req.file) {
-      // Extract Cloudinary URL from the uploaded file
-      const images = req.file.path;
-      // Create the profile
-      const profile = await Profile.create({
-        name,
-        age,
-        gender,
-        qualification,
-        occupation,
-        maritalStatus,
-        caste,
-        district,
-        state,
-        images // Save the Cloudinary URL here
-      });
-
-      return res.status(StatusCodes.CREATED).json({
-        success: true,
-        message: "Profile created successfully",
-        profile,
-      });
-    } else {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: "No image uploaded",
-      });
-    }
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
