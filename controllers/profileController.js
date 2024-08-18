@@ -1,10 +1,10 @@
-import cloudinary from 'cloudinary';
+// import cloudinary from 'cloudinary';
 import { StatusCodes } from "http-status-codes";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import { Profile } from "../models/profileModel.js";
-const { v2: cloudinaryV2 } = cloudinary;
-
+// const { v2: cloudinaryV2 } = cloudinary;
+import { v2 as cloudinary } from "cloudinary";
 // Cloudinary configuration
 cloudinary.config({
   cloud_name: "dp3hsqngf",
@@ -31,15 +31,33 @@ cloudinary.config({
   secure: true,
 });
 
-
-
 // POST Profile
 const createProfile = async (req, res) => {
+  console.log("Request body:", req.body);
+  console.log("File details:", req.file);
   try {
-    const { name, age, gender, qualification, occupation, maritalStatus, caste, district, state } = req.body;
+    const {
+      name,
+      age,
+      gender,
+      qualification,
+      occupation,
+      maritalStatus,
+      caste,
+      district,
+      state,
+    } = req.body;
 
     if (
-      !name || !age || !gender || !qualification || !occupation || !maritalStatus || !caste || !district || !state
+      !name ||
+      !age ||
+      !gender ||
+      !qualification ||
+      !occupation ||
+      !maritalStatus ||
+      !caste ||
+      !district ||
+      !state
     ) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
@@ -47,7 +65,7 @@ const createProfile = async (req, res) => {
       });
     }
 
-    console.log(req.file)
+    console.log(req.file);
     if (req.file) {
       const imageUrl = req.file.path; // Cloudinary URL
 
@@ -61,7 +79,7 @@ const createProfile = async (req, res) => {
         caste,
         district,
         state,
-        images: imageUrl
+        images: imageUrl,
       });
 
       return res.status(StatusCodes.CREATED).json({
