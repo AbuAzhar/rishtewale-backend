@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import isEmail from "validator/lib/isEmail.js";
-
 const userModel = new mongoose.Schema({
   email: {
     type: String,
@@ -19,7 +18,6 @@ const userModel = new mongoose.Schema({
     minLength: [6, "Password should be more than 6 characters"],
   },
 });
-
 const User = mongoose.model("User", userModel);
 
 export default User;

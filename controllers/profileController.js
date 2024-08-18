@@ -1,19 +1,14 @@
-// import cloudinary from 'cloudinary';
+import { v2 as cloudinary } from "cloudinary";
 import { StatusCodes } from "http-status-codes";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import { Profile } from "../models/profileModel.js";
-// const { v2: cloudinaryV2 } = cloudinary;
-import { v2 as cloudinary } from "cloudinary";
-// Cloudinary configuration
 cloudinary.config({
   cloud_name: "dp3hsqngf",
   api_key: 189886163665759,
   api_secret: "g55P_hmQthgUXhkEDFLxmKTs1ug",
   secure: true,
 });
-
-// Cloudinary storage configuration for multer
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -21,17 +16,13 @@ const storage = new CloudinaryStorage({
     allowed_formats: ["jpg", "jpeg", "png", "avif", "webp"],
   },
 });
-
 const upload = multer({ storage: storage });
-// Cloudinary configuration
 cloudinary.config({
   cloud_name: "dp3hsqngf",
   api_key: 189886163665759,
   api_secret: "g55P_hmQthgUXhkEDFLxmKTs1ug",
   secure: true,
 });
-
-// POST Profile
 const createProfile = async (req, res) => {
   console.log("Request body:", req.body);
   console.log("File details:", req.file);
@@ -47,7 +38,6 @@ const createProfile = async (req, res) => {
       district,
       state,
     } = req.body;
-
     if (
       !name ||
       !age ||
@@ -67,7 +57,7 @@ const createProfile = async (req, res) => {
 
     console.log(req.file);
     if (req.file) {
-      const imageUrl = req.file.path; // Cloudinary URL
+      const imageUrl = req.file.path; 
 
       const profile = await Profile.create({
         name,
@@ -177,5 +167,4 @@ const searchProfile = async (req, res) => {
     });
   }
 };
-
 export { createProfile, deleteProfile, getProfile, searchProfile, upload };
